@@ -1,152 +1,119 @@
-import json
 from collections.abc import Callable
+from typing import Annotated
 
 from mcp.server.fastmcp import FastMCP
+from mcp.types import ToolAnnotations
+from pydantic import Field
 
+from .._json import dump_json_capped
 from ..api_client import DynuClient, DynuError
 from ._common import NO_TOKEN
+
+_BODY_DESC = (
+    "Request payload — see Dynu's OpenAPI spec (Models section) for the "
+    "exact field names/types of this resource."
+)
 
 
 def register(mcp: FastMCP, client_factory: Callable[[], DynuClient | None]) -> None:
 
-    @mcp.tool()
-    async def dynu_add_new_email_account_email_service(id: int, body: dict) -> str:
-        """Add a new email account for email service.
-
-        API: POST /email/{id}/account
-
-        Args:
-            id: Required. The id of the email service.
-            body: Required. Request payload (dict) — see the vendor's OpenAPI spec (Models section) for the exact schema of this resource.
-        """
+    @mcp.tool(annotations=ToolAnnotations(idempotentHint=False))
+    async def dynu_add_new_email_account_email_service(
+        id: Annotated[int, Field(description="ID of the email service.")],
+        body: Annotated[dict, Field(description=_BODY_DESC)],
+    ) -> str:
+        """Add a new mailbox account to an email service."""
         client = client_factory()
         if client is None:
             return NO_TOKEN
-        path = f"/email/{id}/account"
-        params = {}
         try:
-            result = await client.post(path, params=params, json_body=body)
-            return json.dumps(result, indent=2, default=str)
+            result = await client.post(f"/email/{id}/account", json_body=body)
+            return dump_json_capped(result)
         except DynuError as e:
-            return f"Error: {e}"
+            return e.to_envelope()
 
-    @mcp.tool()
-    async def dynu_get_details_email_account(id: int, account_id: int) -> str:
-        """Get details of the email account.
-
-        API: GET /email/{id}/account/{accountId}
-
-        Args:
-            id: Required. The id of the email service.
-            account_id: Required. The id of the email account.
-        """
+    @mcp.tool(annotations=ToolAnnotations(readOnlyHint=True))
+    async def dynu_get_details_email_account(
+        id: Annotated[int, Field(description="ID of the email service.")],
+        account_id: Annotated[int, Field(description="ID of the email account.")],
+    ) -> str:
+        """Get details of a single mailbox account on an email service."""
         client = client_factory()
         if client is None:
             return NO_TOKEN
-        path = f"/email/{id}/account/{account_id}"
-        params = {}
         try:
-            result = await client.get(path, params=params)
-            return json.dumps(result, indent=2, default=str)
+            result = await client.get(f"/email/{id}/account/{account_id}")
+            return dump_json_capped(result)
         except DynuError as e:
-            return f"Error: {e}"
+            return e.to_envelope()
 
-    @mcp.tool()
-    async def dynu_get_details_email_service(id: int) -> str:
-        """Get details of an email service.
-
-        API: GET /email/{id}
-
-        Args:
-            id: Required. The id of the email service.
-        """
+    @mcp.tool(annotations=ToolAnnotations(readOnlyHint=True))
+    async def dynu_get_details_email_service(
+        id: Annotated[int, Field(description="ID of the email service.")],
+    ) -> str:
+        """Get details of a single email service."""
         client = client_factory()
         if client is None:
             return NO_TOKEN
-        path = f"/email/{id}"
-        params = {}
         try:
-            result = await client.get(path, params=params)
-            return json.dumps(result, indent=2, default=str)
+            result = await client.get(f"/email/{id}")
+            return dump_json_capped(result)
         except DynuError as e:
-            return f"Error: {e}"
+            return e.to_envelope()
 
-    @mcp.tool()
-    async def dynu_get_list_email_accounts_email_service(id: int) -> str:
-        """Get a list of email accounts for email service.
-
-        API: GET /email/{id}/account
-
-        Args:
-            id: Required. The id of the email service.
-        """
+    @mcp.tool(annotations=ToolAnnotations(readOnlyHint=True))
+    async def dynu_get_list_email_accounts_email_service(
+        id: Annotated[int, Field(description="ID of the email service.")],
+    ) -> str:
+        """List all mailbox accounts on an email service."""
         client = client_factory()
         if client is None:
             return NO_TOKEN
-        path = f"/email/{id}/account"
-        params = {}
         try:
-            result = await client.get(path, params=params)
-            return json.dumps(result, indent=2, default=str)
+            result = await client.get(f"/email/{id}/account")
+            return dump_json_capped(result)
         except DynuError as e:
-            return f"Error: {e}"
+            return e.to_envelope()
 
-    @mcp.tool()
+    @mcp.tool(annotations=ToolAnnotations(readOnlyHint=True))
     async def dynu_get_list_email_services() -> str:
-        """Get a list of email services.
-
-        API: GET /email
-
-        """
+        """List all email services on the account."""
         client = client_factory()
         if client is None:
             return NO_TOKEN
-        params = {}
         try:
-            result = await client.get("/email", params=params)
-            return json.dumps(result, indent=2, default=str)
+            result = await client.get("/email")
+            return dump_json_capped(result)
         except DynuError as e:
-            return f"Error: {e}"
+            return e.to_envelope()
 
-    @mcp.tool()
-    async def dynu_remove_email_account_email_service(id: int, account_id: int) -> str:
-        """Remove an email account from email service.
-
-        API: DELETE /email/{id}/account/{accountId}
-
-        Args:
-            id: Required. The id of the email service.
-            account_id: Required. The id of the email account.
-        """
+    @mcp.tool(annotations=ToolAnnotations(destructiveHint=True, idempotentHint=True))
+    async def dynu_remove_email_account_email_service(
+        id: Annotated[int, Field(description="ID of the email service.")],
+        account_id: Annotated[int, Field(description="ID of the email account to remove.")],
+    ) -> str:
+        """Remove a mailbox account from an email service. Irreversible."""
         client = client_factory()
         if client is None:
             return NO_TOKEN
-        path = f"/email/{id}/account/{account_id}"
-        params = {}
         try:
-            result = await client.delete(path, params=params)
-            return json.dumps(result, indent=2, default=str)
+            result = await client.delete(f"/email/{id}/account/{account_id}")
+            return dump_json_capped(result)
         except DynuError as e:
-            return f"Error: {e}"
+            return e.to_envelope()
 
-    @mcp.tool()
-    async def dynu_update_existing_email_account_email_service(id: int, account_id: int, body: dict) -> str:
-        """Update an existing email account for email service.
-
-        API: POST /email/{id}/account/{accountId}
-
-        Args:
-            id: Required. The id of the email service.
-            account_id: Required. The id of the email account.
-            body: Required. Request payload (dict) — see the vendor's OpenAPI spec (Models section) for the exact schema of this resource.
-        """
+    @mcp.tool(annotations=ToolAnnotations(idempotentHint=True))
+    async def dynu_update_existing_email_account_email_service(
+        id: Annotated[int, Field(description="ID of the email service.")],
+        account_id: Annotated[int, Field(description="ID of the email account to update.")],
+        body: Annotated[dict, Field(description=_BODY_DESC)],
+    ) -> str:
+        """Update an existing mailbox account on an email service."""
         client = client_factory()
         if client is None:
             return NO_TOKEN
-        path = f"/email/{id}/account/{account_id}"
-        params = {}
         try:
-            result = await client.post(path, params=params, json_body=body)
-            return json.dumps(result, indent=2, default=str)
+            result = await client.post(f"/email/{id}/account/{account_id}", json_body=body)
+            return dump_json_capped(result)
         except DynuError as e:
-            return f"Error: {e}"
+            return e.to_envelope()

@@ -65,7 +65,7 @@ Missing the header returns `401`:
 ## MCP Endpoint
 
 - `POST /mcp` — MCP protocol (streamable HTTP transport)
-- `GET /health` — health check, returns `{"status": "ok", "service": "dynu-mcp", "transport": "http"}`
+- `GET /health` — health check, returns `{"status": "ok"}` (pure local liveness probe, does not depend on the Dynu API)
 
 ## Tool List
 

@@ -76,6 +76,25 @@ def create_mcp_server(settings: Settings) -> FastMCP:
     # correctly behind a reverse proxy or docker network.
     mcp = FastMCP(
         name="dynu-mcp",
+        instructions=(
+            "Dynu is a dynamic DNS, domain registration, email hosting, and cloud "
+            "compute (VPS) provider. This server exposes 6 tool domains over the "
+            "account's Dynu services: dns (manage DNS services and their records — "
+            "dynu_get_list_domains_dns_service is the endpoint MSPbots itself uses); "
+            "domain (read-only lookup of registered domains); email (manage email "
+            "services and their mailbox accounts); compute (manage VPS instances — "
+            "start/stop act on live infrastructure and are destructive/irreversible); "
+            "monitor (manage uptime/service monitors — add/delete, pause/unpause, "
+            "and account limits); ping (connectivity check against the Dynu API "
+            "itself, useful for verifying credentials before other calls). Typical "
+            "flow: call a list tool (e.g. dynu_get_list_domains_dns_service, "
+            "dynu_get_list_email_services, dynu_get_list_instances, "
+            "dynu_get_list_monitors) to find a service/resource ID, then pass that "
+            "ID to the matching detail/record/account tool. Write and delete tools "
+            "act on real production DNS records, mailboxes, monitors, and VPS "
+            "instances — always use IDs returned by a prior list/get call, never "
+            "guess them."
+        ),
         transport_security=TransportSecuritySettings(enable_dns_rebinding_protection=False),
     )
 

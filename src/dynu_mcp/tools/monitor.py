@@ -1,143 +1,112 @@
-import json
 from collections.abc import Callable
+from typing import Annotated
 
 from mcp.server.fastmcp import FastMCP
+from mcp.types import ToolAnnotations
+from pydantic import Field
 
+from .._json import dump_json_capped
 from ..api_client import DynuClient, DynuError
 from ._common import NO_TOKEN
+
+_BODY_DESC = (
+    "Request payload — see Dynu's OpenAPI spec (Models section) for the "
+    "exact field names/types of this resource."
+)
 
 
 def register(mcp: FastMCP, client_factory: Callable[[], DynuClient | None]) -> None:
 
-    @mcp.tool()
-    async def dynu_add_new_monitor(body: dict) -> str:
-        """Add a new monitor.
-
-        API: POST /monitor
-
-        Args:
-            body: Required. Request payload (dict) — see the vendor's OpenAPI spec (Models section) for the exact schema of this resource.
-        """
+    @mcp.tool(annotations=ToolAnnotations(idempotentHint=False))
+    async def dynu_add_new_monitor(
+        body: Annotated[dict, Field(description=_BODY_DESC)],
+    ) -> str:
+        """Add a new uptime/service monitor."""
         client = client_factory()
         if client is None:
             return NO_TOKEN
-        params = {}
         try:
-            result = await client.post("/monitor", params=params, json_body=body)
-            return json.dumps(result, indent=2, default=str)
+            result = await client.post("/monitor", json_body=body)
+            return dump_json_capped(result)
         except DynuError as e:
-            return f"Error: {e}"
+            return e.to_envelope()
 
-    @mcp.tool()
-    async def dynu_delete_monitor(id: int) -> str:
-        """Delete a monitor.
-
-        API: DELETE /monitor/{id}
-
-        Args:
-            id: Required. The id of the monitor.
-        """
+    @mcp.tool(annotations=ToolAnnotations(destructiveHint=True, idempotentHint=True))
+    async def dynu_delete_monitor(
+        id: Annotated[int, Field(description="ID of the monitor to delete.")],
+    ) -> str:
+        """Delete a monitor. Irreversible."""
         client = client_factory()
         if client is None:
             return NO_TOKEN
-        path = f"/monitor/{id}"
-        params = {}
         try:
-            result = await client.delete(path, params=params)
-            return json.dumps(result, indent=2, default=str)
+            result = await client.delete(f"/monitor/{id}")
+            return dump_json_capped(result)
         except DynuError as e:
-            return f"Error: {e}"
+            return e.to_envelope()
 
-    @mcp.tool()
-    async def dynu_get_details_monitor(id: int) -> str:
-        """Get details of a monitor.
-
-        API: GET /monitor/{id}
-
-        Args:
-            id: Required. The id of the monitor.
-        """
+    @mcp.tool(annotations=ToolAnnotations(readOnlyHint=True))
+    async def dynu_get_details_monitor(
+        id: Annotated[int, Field(description="ID of the monitor.")],
+    ) -> str:
+        """Get details of a single monitor."""
         client = client_factory()
         if client is None:
             return NO_TOKEN
-        path = f"/monitor/{id}"
-        params = {}
         try:
-            result = await client.get(path, params=params)
-            return json.dumps(result, indent=2, default=str)
+            result = await client.get(f"/monitor/{id}")
+            return dump_json_capped(result)
         except DynuError as e:
-            return f"Error: {e}"
+            return e.to_envelope()
 
-    @mcp.tool()
+    @mcp.tool(annotations=ToolAnnotations(readOnlyHint=True))
     async def dynu_get_list_monitors() -> str:
-        """Get a list of monitors.
-
-        API: GET /monitor
-
-        """
+        """List all monitors on the account."""
         client = client_factory()
         if client is None:
             return NO_TOKEN
-        params = {}
         try:
-            result = await client.get("/monitor", params=params)
-            return json.dumps(result, indent=2, default=str)
+            result = await client.get("/monitor")
+            return dump_json_capped(result)
         except DynuError as e:
-            return f"Error: {e}"
+            return e.to_envelope()
 
-    @mcp.tool()
+    @mcp.tool(annotations=ToolAnnotations(readOnlyHint=True))
     async def dynu_limits_associated_monitoring() -> str:
-        """Limits associated with monitoring.
-
-        API: GET /monitor/limit
-
-        """
+        """Get the account's monitoring plan limits (e.g. max monitors)."""
         client = client_factory()
         if client is None:
             return NO_TOKEN
-        params = {}
         try:
-            result = await client.get("/monitor/limit", params=params)
-            return json.dumps(result, indent=2, default=str)
+            result = await client.get("/monitor/limit")
+            return dump_json_capped(result)
         except DynuError as e:
-            return f"Error: {e}"
+            return e.to_envelope()
 
-    @mcp.tool()
-    async def dynu_pause_monitor(id: int) -> str:
-        """Pause a monitor.
-
-        API: GET /monitor/{id}/pause
-
-        Args:
-            id: Required. The id of the monitor.
-        """
+    @mcp.tool(annotations=ToolAnnotations(idempotentHint=True))
+    async def dynu_pause_monitor(
+        id: Annotated[int, Field(description="ID of the monitor to pause.")],
+    ) -> str:
+        """Pause a monitor so it stops checking and alerting."""
         client = client_factory()
         if client is None:
             return NO_TOKEN
-        path = f"/monitor/{id}/pause"
-        params = {}
         try:
-            result = await client.get(path, params=params)
-            return json.dumps(result, indent=2, default=str)
+            result = await client.get(f"/monitor/{id}/pause")
+            return dump_json_capped(result)
         except DynuError as e:
-            return f"Error: {e}"
+            return e.to_envelope()
 
-    @mcp.tool()
-    async def dynu_unpause_monitor(id: int) -> str:
-        """Unpause a monitor.
-
-        API: GET /monitor/{id}/unpause
-
-        Args:
-            id: Required. The id of the monitor.
-        """
+    @mcp.tool(annotations=ToolAnnotations(idempotentHint=True))
+    async def dynu_unpause_monitor(
+        id: Annotated[int, Field(description="ID of the monitor to unpause.")],
+    ) -> str:
+        """Resume a paused monitor so it starts checking and alerting again."""
         client = client_factory()
         if client is None:
             return NO_TOKEN
-        path = f"/monitor/{id}/unpause"
-        params = {}
         try:
-            result = await client.get(path, params=params)
-            return json.dumps(result, indent=2, default=str)
+            result = await client.get(f"/monitor/{id}/unpause")
+            return dump_json_capped(result)
         except DynuError as e:
-            return f"Error: {e}"
+            return e.to_envelope()
