@@ -110,11 +110,11 @@ Credentials area of the Dynu control panel). MSPbots' own integration
 convention sends this key as the raw value of the `API-Key` header, and
 this server forwards it exactly that way.
 
-### HEADER 授权参数说明
+### HEADER Authorization Parameters
 
-| Header | 类型 | 是否必填 | 默认值 | 枚举值 | 字段描述 | Example |
+| Header | Type | Required | Default | Allowed values | Description | Example |
 |---|---|---|---|---|---|---|
-| `X-Dynu-Api-Key` | string | 是 | 无 | 无 | Dynu 静态 API Key，原样转发为上游 `API-Key` 请求头 | `a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6` |
+| `X-Dynu-Api-Key` | string | Yes | None | None | Static Dynu API Key, forwarded as-is as the upstream `API-Key` request header | `a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6` |
 
 Missing the header returns `401`:
 ```json
@@ -128,11 +128,11 @@ Missing the header returns `401`:
 
 ## Environment Variables
 
-| Variable | 类型 | 是否必填 | 默认值 | 说明 |
+| Variable | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `MCP_HTTP_PORT` | int | 否 | `8080` | HTTP 监听端口 |
-| `MCP_HTTP_HOST` | string | 否 | `0.0.0.0` | HTTP 监听地址 |
-| `DYNU_BASE_URL` | string | 否 | `https://api.dynu.com/v2` | Dynu API 基础 URL |
+| `MCP_HTTP_PORT` | int | No | `8080` | HTTP listen port |
+| `MCP_HTTP_HOST` | string | No | `0.0.0.0` | HTTP listen address |
+| `DYNU_BASE_URL` | string | No | `https://api.dynu.com/v2` | Dynu API base URL |
 
 ## MCP Endpoint
 
@@ -149,40 +149,40 @@ with a `_get`/`_post` suffix. `body` parameters for POST operations are
 accepted as a generic `dict` — see the vendor's OpenAPI spec's Models
 section (linked below) for the exact field names/types of each resource.
 
-| Category | Tool | 功能 | 方法+路径 | 参数 |
+| Category | Tool | Description | Method + Path | Parameters |
 |---|---|---|---|---|
-| dns | `dynu_add_new_dns_record_dns_service` | Add a new DNS record for DNS service. | POST /dns/{id}/record | id(必填), body(必填,dict) |
-| dns | `dynu_add_new_dns_service` | Add a new DNS service. | POST /dns | body(必填,dict) |
-| dns | `dynu_get_details_dns_record_dns_service` | Get details of a DNS record for DNS service. | GET /dns/{id}/record/{dnsRecordId} | id(必填), dns_record_id(必填) |
-| dns | `dynu_get_details_domain_dns_service` | Get details of a domain for DNS service. | GET /dns/{id} | id(必填) |
-| dns | `dynu_get_list_dns_records_dns_service` | Get a list of DNS records for DNS service. | GET /dns/{id}/record | id(必填) |
+| dns | `dynu_add_new_dns_record_dns_service` | Add a new DNS record for DNS service. | POST /dns/{id}/record | id(required), body(required, dict) |
+| dns | `dynu_add_new_dns_service` | Add a new DNS service. | POST /dns | body(required, dict) |
+| dns | `dynu_get_details_dns_record_dns_service` | Get details of a DNS record for DNS service. | GET /dns/{id}/record/{dnsRecordId} | id(required), dns_record_id(required) |
+| dns | `dynu_get_details_domain_dns_service` | Get details of a domain for DNS service. | GET /dns/{id} | id(required) |
+| dns | `dynu_get_list_dns_records_dns_service` | Get a list of DNS records for DNS service. | GET /dns/{id}/record | id(required) |
 | dns | `dynu_get_list_domains_dns_service` | Get a list of domains for DNS service. | GET /dns |  |
-| dns | `dynu_remove_dns_record_dns_service` | Remove a DNS record from DNS service. | DELETE /dns/{id}/record/{dnsRecordId} | id(必填), dns_record_id(必填) |
-| dns | `dynu_update_existing_dns_record_dns_service` | Update an existing DNS record for DNS service. | POST /dns/{id}/record/{dnsRecordId} | id(必填), dns_record_id(必填), body(必填,dict) |
-| domain | `dynu_get_details_domain_registration_domain` | Get details of a domain registration domain. | GET /domain/{id} | id(必填) |
+| dns | `dynu_remove_dns_record_dns_service` | Remove a DNS record from DNS service. | DELETE /dns/{id}/record/{dnsRecordId} | id(required), dns_record_id(required) |
+| dns | `dynu_update_existing_dns_record_dns_service` | Update an existing DNS record for DNS service. | POST /dns/{id}/record/{dnsRecordId} | id(required), dns_record_id(required), body(required, dict) |
+| domain | `dynu_get_details_domain_registration_domain` | Get details of a domain registration domain. | GET /domain/{id} | id(required) |
 | domain | `dynu_get_list_domains_domain_registration_service` | Get a list of domains for domain registration service. | GET /domain |  |
-| email | `dynu_add_new_email_account_email_service` | Add a new email account for email service. | POST /email/{id}/account | id(必填), body(必填,dict) |
-| email | `dynu_get_details_email_account` | Get details of the email account. | GET /email/{id}/account/{accountId} | id(必填), account_id(必填) |
-| email | `dynu_get_details_email_service` | Get details of an email service. | GET /email/{id} | id(必填) |
-| email | `dynu_get_list_email_accounts_email_service` | Get a list of email accounts for email service. | GET /email/{id}/account | id(必填) |
+| email | `dynu_add_new_email_account_email_service` | Add a new email account for email service. | POST /email/{id}/account | id(required), body(required, dict) |
+| email | `dynu_get_details_email_account` | Get details of the email account. | GET /email/{id}/account/{accountId} | id(required), account_id(required) |
+| email | `dynu_get_details_email_service` | Get details of an email service. | GET /email/{id} | id(required) |
+| email | `dynu_get_list_email_accounts_email_service` | Get a list of email accounts for email service. | GET /email/{id}/account | id(required) |
 | email | `dynu_get_list_email_services` | Get a list of email services. | GET /email |  |
-| email | `dynu_remove_email_account_email_service` | Remove an email account from email service. | DELETE /email/{id}/account/{accountId} | id(必填), account_id(必填) |
-| email | `dynu_update_existing_email_account_email_service` | Update an existing email account for email service. | POST /email/{id}/account/{accountId} | id(必填), account_id(必填), body(必填,dict) |
-| compute | `dynu_get_instance` | Get an instance. | GET /compute/instance/{id} | id(必填) |
+| email | `dynu_remove_email_account_email_service` | Remove an email account from email service. | DELETE /email/{id}/account/{accountId} | id(required), account_id(required) |
+| email | `dynu_update_existing_email_account_email_service` | Update an existing email account for email service. | POST /email/{id}/account/{accountId} | id(required), account_id(required), body(required, dict) |
+| compute | `dynu_get_instance` | Get an instance. | GET /compute/instance/{id} | id(required) |
 | compute | `dynu_get_list_instances` | Get a list of instances. | GET /compute/instance |  |
-| compute | `dynu_start_instance` | Start an instance. | GET /compute/instance/{id}/start | id(必填) |
-| compute | `dynu_stop_suspend_instance` | Stop (suspend) an instance. | GET /compute/instance/{id}/stop | id(必填) |
-| monitor | `dynu_add_new_monitor` | Add a new monitor. | POST /monitor | body(必填,dict) |
-| monitor | `dynu_delete_monitor` | Delete a monitor. | DELETE /monitor/{id} | id(必填) |
-| monitor | `dynu_get_details_monitor` | Get details of a monitor. | GET /monitor/{id} | id(必填) |
+| compute | `dynu_start_instance` | Start an instance. | GET /compute/instance/{id}/start | id(required) |
+| compute | `dynu_stop_suspend_instance` | Stop (suspend) an instance. | GET /compute/instance/{id}/stop | id(required) |
+| monitor | `dynu_add_new_monitor` | Add a new monitor. | POST /monitor | body(required, dict) |
+| monitor | `dynu_delete_monitor` | Delete a monitor. | DELETE /monitor/{id} | id(required) |
+| monitor | `dynu_get_details_monitor` | Get details of a monitor. | GET /monitor/{id} | id(required) |
 | monitor | `dynu_get_list_monitors` | Get a list of monitors. | GET /monitor |  |
 | monitor | `dynu_limits_associated_monitoring` | Limits associated with monitoring. | GET /monitor/limit |  |
-| monitor | `dynu_pause_monitor` | Pause a monitor. | GET /monitor/{id}/pause | id(必填) |
-| monitor | `dynu_unpause_monitor` | Unpause a monitor. | GET /monitor/{id}/unpause | id(必填) |
-| ping | `dynu_ping_api_server_obtain_pong_response_get` | Ping the API server to obtain the pong response. | GET /ping | message(必填) |
-| ping | `dynu_ping_api_server_obtain_pong_response_post` | Ping the API server to obtain the pong response. | POST /ping | body(必填,dict) |
+| monitor | `dynu_pause_monitor` | Pause a monitor. | GET /monitor/{id}/pause | id(required) |
+| monitor | `dynu_unpause_monitor` | Unpause a monitor. | GET /monitor/{id}/unpause | id(required) |
+| ping | `dynu_ping_api_server_obtain_pong_response_get` | Ping the API server to obtain the pong response. | GET /ping | message(required) |
+| ping | `dynu_ping_api_server_obtain_pong_response_post` | Ping the API server to obtain the pong response. | POST /ping | body(required, dict) |
 
-## 测试示例
+## Test Example
 
 ```bash
 # Health check
